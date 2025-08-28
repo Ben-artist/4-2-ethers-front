@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, message, Space, Divider, Alert, List, Spin, Typography } from 'antd';
+import { Card, Form, Input, Button, message, Space, Divider, Alert, List, Spin, Typography, Progress } from 'antd';
 import { FileTextOutlined, WalletOutlined, DatabaseOutlined, ReloadOutlined, CloudOutlined } from '@ant-design/icons';
 import { ethers } from 'ethers';
 import { gql, request } from 'graphql-request';
@@ -14,6 +14,8 @@ const LogMethod = ({ network, walletAddress, onRecord }) => {
   const [loading, setLoading] = useState(false);
   const [subgraphData, setSubgraphData] = useState([]);
   const [loadingSubgraph, setLoadingSubgraph] = useState(false);
+  const [txProgress, setTxProgress] = useState(0); // Progress bar state
+  const [txStatus, setTxStatus] = useState(null); // Transaction status: null, pending, success, error
 
   // GraphQL查询配置
   const SUBGRAPH_URL = 'https://api.studio.thegraph.com/query/119065/ethers/version/latest';
@@ -76,6 +78,8 @@ const LogMethod = ({ network, walletAddress, onRecord }) => {
     }
 
     setLoading(true);
+    setTxProgress(0);
+    setTxStatus('pending');
 
     try {
       // 创建provider和signer
@@ -90,13 +94,20 @@ const LogMethod = ({ network, walletAddress, onRecord }) => {
       const contract = new ethers.Contract(address, contractABI.abi, signer);
       console.log('合约实例:', contract);
 
+      let tx;
+      setTxProgress(20); // Transaction initiated
+
       if (values.logType === 'hello') {
         // 调用sayHello函数
         console.log('调用sayHello函数...');
-
-        // 直接调用合约函数（简化版本）
-        const tx = await contract.sayHello();
+        tx = await contract.sayHello();
+        setTxProgress(50); // Transaction sent
         console.log('交易已发送:', tx.hash);
+
+        // 等待交易确认
+        await tx.wait();
+        setTxProgress(100);
+        setTxStatus('success');
 
         // 记录成功
         onRecord({
@@ -115,10 +126,14 @@ const LogMethod = ({ network, walletAddress, onRecord }) => {
         }
 
         console.log('调用sayHelloTo函数，参数:', values.logContent.trim());
-
-        // 直接调用合约函数（简化版本）
-        const tx = await contract.sayHelloTo(values.logContent.trim());
+        tx = await contract.sayHelloTo(values.logContent.trim());
+        setTxProgress(50); // Transaction sent
         console.log('交易已发送:', tx.hash);
+
+        // 等待交易确认
+        await tx.wait();
+        setTxProgress(100);
+        setTxStatus('success');
 
         // 记录成功
         onRecord({
@@ -136,6 +151,8 @@ const LogMethod = ({ network, walletAddress, onRecord }) => {
 
     } catch (error) {
       console.error('日志写入失败:', error);
+      setTxProgress(100);
+      setTxStatus('error');
 
       onRecord({
         type: '日志方式',
@@ -147,6 +164,11 @@ const LogMethod = ({ network, walletAddress, onRecord }) => {
       message.error('日志写入失败: ' + error.message);
     } finally {
       setLoading(false);
+      // Reset progress after a short delay
+      setTimeout(() => {
+        setTxProgress(0);
+        setTxStatus(null);
+      }, 3000);
     }
   };
 
@@ -225,6 +247,23 @@ const LogMethod = ({ network, walletAddress, onRecord }) => {
         showIcon
         style={{ marginBottom: 16 }}
       />
+
+      {/* 交易进度条 */}
+      {txStatus && (
+        <div style={{ marginBottom: 16 }}>
+          <Progress
+            percent={txProgress}
+            status={txStatus === 'error' ? 'exception' : txStatus === 'success' ? 'success' : 'active'}
+            showInfo={true}
+            format={() => {
+              if (txStatus === 'pending') return '交易处理中...';
+              if (txStatus === 'success') return '交易成功';
+              if (txStatus === 'error') return '交易失败';
+              return '';
+            }}
+          />
+        </div>
+      )}
 
       <Form
         form={form}
