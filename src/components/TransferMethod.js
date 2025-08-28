@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, InputNumber, Button, message, Space, Divider, Typography, Spin } from 'antd';
+import { Card, Form, Input, InputNumber, Button, message, Space, Divider, Typography, Spin, Progress } from 'antd';
 import { SendOutlined, WalletOutlined, UserOutlined, MessageOutlined, ReloadOutlined } from '@ant-design/icons';
 import { ethers } from 'ethers';
 
@@ -12,6 +12,8 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
   const [currentBalance, setCurrentBalance] = useState('0');
   const [records, setRecords] = useState([]);
   const [loadingRecords, setLoadingRecords] = useState(false);
+  const [txProgress, setTxProgress] = useState(0); // Progress bar state
+  const [txStatus, setTxStatus] = useState(null); // Transaction status: null, pending, success, error
 
   // 监听walletAddress变化，更新余额
   useEffect(() => {
@@ -53,7 +55,7 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
       }, 200);
     };
     
-    window.ethereum.on('accountsChanged', handleAccountsChanged);
+ window.ethereum.on('accountsChanged', handleAccountsChanged);
     
     // 组件初始化时立即获取余额
     if (walletAddress) {
@@ -204,6 +206,8 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
     }
 
     setLoading(true);
+    setTxProgress(0);
+    setTxStatus('pending');
     
     try {
       // 创建provider和signer
@@ -239,6 +243,8 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
         throw new Error('余额不足');
       }
 
+      setTxProgress(20); // Transaction initiated
+
       // 确保地址格式正确
       const recipientAddress = ethers.getAddress(values.recipientAddress);
       console.log('转账到地址:', recipientAddress);
@@ -259,9 +265,12 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
 
       // 发送交易
       const transaction = await signer.sendTransaction(tx);
+      setTxProgress(50); // Transaction sent
       
       // 等待交易确认
       const receipt = await transaction.wait();
+      setTxProgress(100);
+      setTxStatus('success');
 
       // 添加成功记录
       onRecord({
@@ -282,7 +291,9 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
       
     } catch (error) {
       console.error('转账失败:', error);
-      
+      setTxProgress(100);
+      setTxStatus('error');
+
       // 添加失败记录
       onRecord({
         type: '转账方式',
@@ -296,6 +307,11 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
       message.error('转账失败: ' + error.message);
     } finally {
       setLoading(false);
+      // Reset progress after a short delay
+      setTimeout(() => {
+        setTxProgress(0);
+        setTxStatus(null);
+      }, 3000);
     }
   };
 
@@ -342,6 +358,23 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
         </div>
       }
     >
+      {/* 交易进度条 */}
+      {txStatus && (
+        <div style={{ marginBottom: 16 }}>
+          <Progress
+            percent={txProgress}
+            status={txStatus === 'error' ? 'exception' : txStatus === 'success' ? 'success' : 'active'}
+            showInfo={true}
+            format={() => {
+              if (txStatus === 'pending') return '交易处理中...';
+              if (txStatus === 'success') return '交易成功';
+              if (txStatus === 'error') return '交易失败';
+              return '';
+            }}
+          />
+        </div>
+      )}
+
       <Form
         form={form}
         layout="vertical"
@@ -410,8 +443,7 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
             { type: 'number', min: 0.0001, message: '金额必须大于0.0001 ETH' }
           ]}
         >
-          <InputNumber
-            style={{ width: '100%' }}
+          <InputNumber style={{ width: '100%' }}
             placeholder="0.001"
             precision={6}
             min={0.0001}
@@ -467,9 +499,9 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
       {/* 转账记录显示区域 */}
       <div style={{ marginTop: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <Title level={5} style={{ margin: 0 }}>
+          <div level={5} style={{ margin: 0 }}>
             <ReloadOutlined style={{ marginRight: 8 }} /> 最近转账记录
-          </Title>
+          </div>
           <Button
             type="primary"
             icon={<ReloadOutlined />}
