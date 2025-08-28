@@ -1,0 +1,95 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.ant-layout {
+  min-height: 100vh;
+}
+
+.ant-layout-header {
+  background: #001529;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.wallet-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.network-selector {
+  min-width: 120px;
+}
+
+.main-content {
+  padding: 24px;
+  background: white;
+  margin: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content {
+  margin-top: 24px;
+}
+
+.form-section {
+  margin-bottom: 24px;
+}
+
+.record-section {
+  margin-top: 32px;
+  padding: 24px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.record-item {
+  padding: 16px;
+  margin-bottom: 16px;
+  background: white;
+  border-radius: 6px;
+  border-left: 4px solid #1890ff;
+}
+
+.record-item.success {
+  border-left-color: #52c41a;
+}
+
+.record-item.error {
+  border-left-color: #ff4d4f;
+}
+
+.status-badge {
+  margin-left: 8px;
+}
+
+.help-text {
+  color: #666;
+  font-size: 12px;
+  margin-top: 4px;
+}

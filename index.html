@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据上链系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 头部区域 -->
+    <header class="header">
+        <div class="header-left">
+            <h1 class="title">数据上链系统</h1>
+        </div>
+        <div class="header-right">
+            <!-- 网络选择 -->
+            <div class="network-selector">
+                <select id="networkSelect" class="network-dropdown">
+                    <option value="test">测试</option>
+                    <option value="local">本地</option>
+                    <option value="mainnet">主网</option>
+                </select>
+            </div>
+            
+            <!-- 钱包连接 -->
+            <div class="wallet-section">
+                <div id="walletInfo" class="wallet-info hidden">
+                    <span id="walletAddress" class="wallet-address">钱包地址(ENS钱包地址)</span>
+                    <button id="disconnectBtn" class="disconnect-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button id="connectWalletBtn" class="connect-wallet-btn">
+                    <i class="fas fa-wallet"></i>
+                    连接钱包
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <!-- 功能标签页 -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="transfer">
+                <i class="fas fa-exchange-alt"></i>
+                转账方式
+            </button>
+            <button class="tab-btn" data-tab="log">
+                <i class="fas fa-file-alt"></i>
+                日志方式
+            </button>
+            <button class="tab-btn" data-tab="usdt">
+                <i class="fas fa-coins"></i>
+                发送USDT的方式
+            </button>
+        </div>
+
+        <!-- 转账方式标签页 -->
+        <div id="transferTab" class="tab-content active">
+            <div class="form-section">
+                <div class="input-group">
+                    <label for="transferData">转账数据</label>
+                    <textarea id="transferData" placeholder="请输入转账说明或数据内容..." rows="4"></textarea>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="transferAmount">转账金额 (ETH)</label>
+                        <input type="number" id="transferAmount" placeholder="0.0" step="0.001" min="0">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="recipientAddress">收款账户地址</label>
+                        <input type="text" id="recipientAddress" placeholder="0x..." pattern="0x[a-fA-F0-9]{40}">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="transferMessage">数据留言</label>
+                    <input type="text" id="transferMessage" placeholder="请输入留言内容...">
+                </div>
+                
+                <button id="transferBtn" class="action-btn">
+                    <i class="fas fa-paper-plane"></i>
+                    发送转账
+                </button>
+            </div>
+        </div>
+
+        <!-- 日志方式标签页 -->
+        <div id="logTab" class="tab-content">
+            <div class="form-section">
+                <div class="input-group">
+                    <label for="logData">日志内容</label>
+                    <textarea id="logData" placeholder="请输入要写入区块链的日志内容..." rows="6"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="logTitle">日志标题</label>
+                    <input type="text" id="logTitle" placeholder="请输入日志标题...">
+                </div>
+                
+                <button id="writeLogBtn" class="action-btn">
+                    <i class="fas fa-save"></i>
+                    写入日志
+                </button>
+            </div>
+        </div>
+
+        <!-- 发送USDT方式标签页 -->
+        <div id="usdtTab" class="tab-content">
+            <div class="form-section">
+                <div class="input-group">
+                    <label for="usdtRecipient">收款方地址</label>
+                    <input type="text" id="usdtRecipient" placeholder="0x..." pattern="0x[a-fA-F0-9]{40}">
+                </div>
+                
+                <div class="input-group">
+                    <label for="usdtAmount">兑换金额 (ETH)</label>
+                    <input type="number" id="usdtAmount" placeholder="0.0" step="0.001" min="0">
+                    <small class="help-text">系统将自动将ETH兑换为USDT</small>
+                </div>
+                
+                <div class="input-group">
+                    <label for="usdtContract">USDT合约地址</label>
+                    <input type="text" id="usdtContract" placeholder="0x..." value="0xA0b86a33E6441b8c4C8C0b4b8C0b4b8C0b4b8C0b" readonly>
+                    <small class="help-text">USDT代币合约地址</small>
+                </div>
+                
+                <div class="input-group">
+                    <label for="usdtMessage">数据附言</label>
+                    <input type="text" id="usdtMessage" placeholder="请输入附言内容...">
+                </div>
+                
+                <button id="sendUsdtBtn" class="action-btn">
+                    <i class="fas fa-coins"></i>
+                    发送USDT
+                </button>
+            </div>
+        </div>
+
+        <!-- 数据上链记录 -->
+        <div class="records-section">
+            <h3>数据上链的记录</h3>
+            <div id="recordsList" class="records-list">
+                <div class="no-records">
+                    <i class="fas fa-inbox"></i>
+                    <p>暂无记录</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 功能说明提示 -->
+    <div class="help-section">
+        <div class="help-card">
+            <div class="help-header">
+                <i class="fas fa-info-circle"></i>
+                <h4>转账方式</h4>
+            </div>
+            <div class="help-content">
+                <p>页面完成文本框</p>
+                <p>一个转账金额</p>
+                <p>一个收款账户</p>
+                <p>一个数据留言</p>
+            </div>
+        </div>
+        
+        <div class="help-card">
+            <div class="help-header">
+                <i class="fas fa-file-contract"></i>
+                <h4>合约</h4>
+            </div>
+            <div class="help-content">
+                <p>调用合约写日志</p>
+            </div>
+        </div>
+        
+        <div class="help-card">
+            <div class="help-header">
+                <i class="fas fa-exchange-alt"></i>
+                <h4>合约</h4>
+            </div>
+            <div class="help-content">
+                <p>1.收款方</p>
+                <p>2.兑换ETH兑换成USDT(合约地址)</p>
+                <p>3.金额</p>
+                <p>4.数据附言</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载提示 -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loadingText">处理中...</p>
+        </div>
+    </div>
+
+    <!-- 通知提示 -->
+    <div id="notification" class="notification hidden">
+        <div class="notification-content">
+            <i id="notificationIcon" class="fas fa-info-circle"></i>
+            <span id="notificationText">操作完成</span>
+            <button class="notification-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 脚本引入 -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
