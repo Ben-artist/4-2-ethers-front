@@ -499,7 +499,7 @@ const TransferMethod = ({ network, walletAddress, onRecord }) => {
       {/* 转账记录显示区域 */}
       <div style={{ marginTop: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div level={5} style={{ margin: 0 }}>
+          <div style={{ margin: 0 }}>
             <ReloadOutlined style={{ marginRight: 8 }} /> 最近转账记录
           </div>
           <Button

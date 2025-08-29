@@ -1,0 +1,32 @@
+[build]
+command = "npm run build"
+publish = "build"
+
+[build.upload]
+format = "service-worker"
+
+[site]
+bucket = "build"
+
+[[headers]]
+for = "*.css"
+[headers.values]
+Content-Type = "text/css"
+
+[[headers]]
+for = "*.js"
+[headers.values]
+Content-Type = "application/javascript"
+
+[[headers]]
+for = "*.html"
+[headers.values]
+Content-Type = "text/html"
+
+[[headers]]
+for = "*.json"
+[headers.values]
+Content-Type = "application/json"
+
+[env.production]
+name = "4-2-ethers-front"
