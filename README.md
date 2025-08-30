@@ -45,7 +45,7 @@
 - **智能合约**: Solidity (Test.sol)
 - **数据查询**: GraphQL + The Graph
 - **网络支持**: 测试网、本地网络、主网
-- **构建工具**: Create React App
+- **构建工具**: Vite
 - **包管理**: pnpm
 
 ## 项目结构
@@ -75,23 +75,24 @@
 
 ### 1. 安装依赖
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. 启动开发服务器
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 应用将在 http://localhost:3000 启动
 
-**注意**: 如果遇到ESLint错误，可以通过以下方式禁用：
-- 使用启动脚本: `./start.sh` (Linux/Mac) 或 `start.bat` (Windows)
-- 设置环境变量: `ESLINT_NO_DEV_ERRORS=true npm run dev`
-
 ### 3. 构建生产版本
 ```bash
-npm run build
+pnpm run build
+```
+
+### 4. 预览生产版本
+```bash
+pnpm run preview
 ```
 
 ### 4. 部署到 Cloudflare Pages
@@ -350,3 +351,4 @@ MIT License
 ## 联系方式
 
 如有问题或建议，请提交Issue或联系开发团队。
+

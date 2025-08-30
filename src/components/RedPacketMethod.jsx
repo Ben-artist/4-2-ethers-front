@@ -20,6 +20,7 @@ import {
   PlusOutlined
 } from '@ant-design/icons';
 import { ethers } from 'ethers';
+import contractABI from '../redPacket.json';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -34,7 +35,7 @@ const RedPacketMethod = ({ walletAddress, provider, signer, networkInfo }) => {
 
   // 合约地址和ABI
   const CONTRACT_ADDRESS = '0x67Ef630540CE16053F01142A8154a0C0Cf7f0d7C';
-  const CONTRACT_ABI = require('../redPacket.json').abi;
+  const CONTRACT_ABI = contractABI.abi;
 
   // 初始化合约
   useEffect(() => {

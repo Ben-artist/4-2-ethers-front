@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Typography, Select, Button, message, Tabs, Avatar, Dropdown, Space, Badge, Card, Divider } from 'antd';
 import { WalletOutlined, UserOutlined, DollarCircleFilled, DownOutlined, ReloadOutlined, CopyOutlined, SwapOutlined, GiftOutlined } from '@ant-design/icons';
-import TransferMethod from './components/TransferMethod';
-import LogMethod from './components/LogMethod';
-import RedPacketMethod from './components/RedPacketMethod';
-import { connectWallet, getNetworkInfo, getBalance } from './utils/ethereum';
+import TransferMethod from './components/TransferMethod.jsx';
+import LogMethod from './components/LogMethod.jsx';
+import RedPacketMethod from './components/RedPacketMethod.jsx';
+import { connectWallet, getNetworkInfo, getBalance } from './utils/ethereum.jsx';
 import { ethers } from 'ethers';
 import './App.css';
 
