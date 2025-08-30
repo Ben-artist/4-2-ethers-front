@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Typography, Select, Button, message, Tabs, Avatar, Dropdown, Space, Badge, Card, Divider } from 'antd';
-import { WalletOutlined, UserOutlined, DollarCircleFilled, DownOutlined, ReloadOutlined, CopyOutlined, SwapOutlined } from '@ant-design/icons';
+import { WalletOutlined, UserOutlined, DollarCircleFilled, DownOutlined, ReloadOutlined, CopyOutlined, SwapOutlined, GiftOutlined } from '@ant-design/icons';
 import TransferMethod from './components/TransferMethod';
 import LogMethod from './components/LogMethod';
+import RedPacketMethod from './components/RedPacketMethod';
 import { connectWallet, getNetworkInfo, getBalance } from './utils/ethereum';
 import { ethers } from 'ethers';
 import './App.css';
@@ -21,6 +22,9 @@ function App() {
   const [ethBalance, setEthBalance] = useState('0');
   const [accounts, setAccounts] = useState([]);
   const [currentAccountIndex, setCurrentAccountIndex] = useState(0);
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
+  const [networkInfo, setNetworkInfo] = useState(null);
 
   // 初始化时检查钱包连接状态
   useEffect(() => {
@@ -51,6 +55,13 @@ function App() {
         setIsConnected(true);
         setAccounts(accounts);
         setCurrentAccountIndex(0); // 默认选择第一个账户
+        
+        // 设置provider和signer
+        const newProvider = new ethers.BrowserProvider(window.ethereum);
+        const newSigner = await newProvider.getSigner();
+        setProvider(newProvider);
+        setSigner(newSigner);
+        
         await updateNetworkInfo();
         await updateBalance(accounts[0]);
 
@@ -145,6 +156,7 @@ function App() {
     try {
       const networkInfo = await getNetworkInfo();
       setNetwork(networkInfo);
+      setNetworkInfo(networkInfo);
     } catch (error) {
       console.error('获取网络信息失败:', error);
     }
@@ -173,6 +185,13 @@ function App() {
       const address = await connectWallet();
       setWalletAddress(address);
       setIsConnected(true);
+      
+      // 设置provider和signer
+      const newProvider = new ethers.BrowserProvider(window.ethereum);
+      const newSigner = await newProvider.getSigner();
+      setProvider(newProvider);
+      setSigner(newSigner);
+      
       await updateNetworkInfo();
       await updateBalance(address);
 
@@ -802,6 +821,23 @@ function App() {
       ),
     },
     {
+      key: 'redpacket',
+      label: (
+        <span>
+          <GiftOutlined style={{ marginRight: 8 }} />
+          抢红包
+        </span>
+      ),
+      children: (
+        <RedPacketMethod
+          walletAddress={walletAddress}
+          provider={provider}
+          signer={signer}
+          networkInfo={networkInfo}
+        />
+      ),
+    },
+    {
       key: 'accounts',
       label: (
         <span>
@@ -934,6 +970,7 @@ function App() {
               fontWeight: 500
             }}>
               {isConnected ? (
+                networkInfo && networkInfo.name ? networkInfo.name : 
                 network === 'test' ? 'Sepolia测试网' : 
                 network === 'mainnet' ? '以太坊主网' : 
                 network === 'local' ? '本地网络' : '未知网络'

@@ -31,7 +31,7 @@ export const connectWallet = async () => {
 
 /**
  * 获取网络信息
- * @returns {Promise<string>} 网络类型
+ * @returns {Promise<object>} 网络信息对象
  */
 export const getNetworkInfo = async () => {
   if (!window.ethereum) {
@@ -44,23 +44,45 @@ export const getNetworkInfo = async () => {
     });
     console.log('getNetworkInfo: 链ID:', chainId);
 
-    // 根据链ID判断网络类型
+    // 根据链ID判断网络类型和名称
+    let networkType, networkName;
     switch (chainId) {
       case '0x1':
-        return 'mainnet';
+        networkType = 'mainnet';
+        networkName = '以太坊主网';
+        break;
       case '0xaa36a7': // Sepolia测试网
-        return 'test';
+        networkType = 'test';
+        networkName = 'Sepolia测试网';
+        break;
       case '0x5': // Goerli测试网（已废弃）
-        return 'test';
+        networkType = 'test';
+        networkName = 'Goerli测试网';
+        break;
       case '0x539':
-        return 'local';
+        networkType = 'local';
+        networkName = '本地网络';
+        break;
       default:
         console.log('未知网络，当前Chain ID:', chainId);
-        return 'test';
+        networkType = 'test';
+        networkName = '未知网络';
     }
+
+    return {
+      type: networkType,
+      name: networkName,
+      chainId: chainId,
+      chainIdDecimal: parseInt(chainId, 16)
+    };
   } catch (error) {
     console.error('获取网络信息失败:', error);
-    return 'test';
+    return {
+      type: 'test',
+      name: '未知网络',
+      chainId: '0x0',
+      chainIdDecimal: 0
+    };
   }
 };
 
